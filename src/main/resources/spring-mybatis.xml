@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<context:component-scan base-package="com.zhidisoft.service"></context:component-scan>
+	
+	<!--  数据源 -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	<bean  id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!-- 配置数据库连接信息 -->
+ 		<property name="driverClass"  value="${jdbc.mysql.driver}"></property>
+ 		<property name="jdbcUrl" value="${jdbc.mysql.url}"></property>
+ 		<property name="user" value="${jdbc.mysql.username}"/>
+ 		<property name="password" value="${jdbc.mysql.password}"></property>
+ 		
+ 		<!-- 数据库连接池自身的配置 -->
+ 		<property name="maxPoolSize" value="15"></property>
+ 		<property name="minPoolSize" value="3"></property>
+ 		<!-- initialPoolSize：连接池创建时初始的连接数 -->
+ 		<property name="initialPoolSize" value="3"></property>
+ 		
+ 		<!-- 连接持有时间  : 单位：秒 ， 8小时-->
+ 		<property name="maxConnectionAge" value="28800"></property>
+ 		<!-- 当连接mysql数据库时，最大空闲时间，不要超过8小时：  mysql有8小时陷阱   单位：秒 ， 6小时-->
+ 		<property name="maxIdleTime" value="21600"></property>		
+	</bean>
+
+	<!-- 配置SqlSessionfactoryBean -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+	</bean>
+	
+	<!-- 扫描dao接口 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.zhidisoft.dao"></property>
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>
+	
+	<!-- 关于事务的处理 -->
+	<!-- 事务管理器 -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- 配置事务通知 -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" isolation="DEFAULT" read-only="false"/>
+			
+			<tx:method name="update*" propagation="REQUIRED" isolation="DEFAULT" read-only="false"/>
+			
+			<tx:method name="delete*" propagation="REQUIRED" isolation="DEFAULT" read-only="false"/>
+			
+			<tx:method name="select*" propagation="SUPPORTS" isolation="DEFAULT" read-only="true"/>
+			
+			<tx:method name="*" propagation="REQUIRED" isolation="DEFAULT" read-only="false"/>
+		</tx:attributes>
+	</tx:advice>
+		
+	<aop:config>
+		<!-- 事务切面 -->
+		<aop:advisor advice-ref="txAdvice" pointcut="execution( * com.zhidisoft..service.impl.*.*(..))"/>
+	</aop:config>
+</beans>

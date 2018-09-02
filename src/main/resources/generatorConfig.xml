@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+	<!--   targetRuntime="MyBatis3Simple"  :  不为实体类生成 XXXExample.java -->
+	<context id="mysql" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+		<!-- 注释生成器 -->
+		<commentGenerator>
+			<property name="suppressAllComments" value="true"/><!-- true:不生成注释 -->
+			<property name="suppressDate" value="false" />
+		</commentGenerator>
+	
+		<!-- 数据库连接相关信息 -->
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://localhost:3306/ssm" userId="root"
+			password="123456">
+		</jdbcConnection>
+
+		<!-- Java类型解析 -->
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+
+		<!-- 指定实体生成的位置 -->
+		<javaModelGenerator targetPackage="com.zhidisoft.entity"
+			targetProject="maven-ssm/src/main/java">
+			<!-- 为实体类中的string参数的set方法，去空格 -->
+			<property name="trimStrings" value="true" />
+		</javaModelGenerator>
+
+		<!-- 指定映射文件生成的位置 -->
+		<sqlMapGenerator targetPackage="com.zhidisoft.dao"
+			targetProject="maven-ssm/src/main/resources">
+		</sqlMapGenerator>
+
+		<javaClientGenerator type="XMLMAPPER"
+			targetPackage="com.zhidisoft.dao" targetProject="maven-ssm/src/main/java">
+		</javaClientGenerator>
+
+		<!-- 定义表以及生成的实体类、dao类、映射文件等信息 -->
+		<table tableName="tb_users" domainObjectName="User" mapperName="UserDao" />	
+		<table tableName="tb_roles" domainObjectName="Role" mapperName="RoleDao" />	
+		<table tableName="tb_functions" domainObjectName="Function" mapperName="FunctionDao" />	
+	
+	</context>
+</generatorConfiguration>
